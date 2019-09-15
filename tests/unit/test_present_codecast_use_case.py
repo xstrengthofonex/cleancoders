@@ -2,7 +2,7 @@ import unittest
 
 from cleancoders.usecases.present_codecasts_use_case import PresentCodecastsUseCase
 from cleancoders.mock_gateway import MockGateway
-from tests.unit.builders import build_user, build_codecast, build_license
+from tests.builders import build_user, build_codecast, build_license
 
 
 class PresentCodecastsUseCaseTest(unittest.TestCase):

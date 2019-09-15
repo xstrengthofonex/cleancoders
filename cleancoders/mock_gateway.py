@@ -34,7 +34,6 @@ class MockGateway(Gateway):
         return next((u for u in self._users if u.username == username), None)
 
     def save_license(self, license_: License) -> License:
-        self.establish_id(license_)
         self._licenses.append(license_)
         return license_
 

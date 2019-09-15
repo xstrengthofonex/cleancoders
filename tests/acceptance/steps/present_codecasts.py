@@ -5,7 +5,7 @@ from behave.runner import Context
 
 from cleancoders.entities.codecast import Codecast
 from cleancoders.entities.license import License
-from cleancoders.entities.user import User
+from tests.builders import build_codecast, build_user, build_license
 
 
 @given("no codecasts")
@@ -18,7 +18,7 @@ def step_impl(context: Context):
 
 @given('user "{username}"')
 def step_impl(context: Context, username: str):
-    user = User(username=username)
+    user = build_user(username=username)
     context.gateway.save_user(user)
     assert user == context.gateway.find_user(username)
 
@@ -50,7 +50,7 @@ def step_impl(context: Context):
 @given("codecasts")
 def step_impl(context: Context):
     for row in context.table:
-        codecast = Codecast(
+        codecast = build_codecast(
             title=row.get("title", ""),
             publication_date=row.get("published", ""))
         context.gateway.save_codecast(codecast)
@@ -65,7 +65,7 @@ def step_impl(context: Context, username: str, title: str):
 def step_impl(context: Context, username: str, title: str):
     user = context.gatekeeper.get_logged_in_user()
     codecast = context.gateway.find_codecast_by_title(title)
-    license_ = License(user=user, codecast=codecast)
+    license_ = build_license(user=user, codecast=codecast)
     context.gateway.save_license(license_)
     assert context.present_codecasts_usecase.is_licensed_to_view(user, codecast) is True
 

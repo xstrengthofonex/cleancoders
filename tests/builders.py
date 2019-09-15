@@ -18,6 +18,5 @@ def build_user(**params) -> User:
 
 def build_license(**params) -> License:
     return License(
-        id=params.get("id", None),
         user=params.get("user", build_user()),
         codecast=params.get("codecast", build_codecast()))
