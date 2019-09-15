@@ -4,8 +4,8 @@ from behave import given, step, then
 from behave.runner import Context
 
 from cleancoders.entities.codecast import Codecast
+from cleancoders.entities.license import License
 from cleancoders.entities.user import User
-from cleancoders.usecases.present_codecasts_use_case import PresentCodecastsUseCase
 
 
 @given("no codecasts")
@@ -37,9 +37,8 @@ def step_impl(context: Context, username: str):
 
 @step("there will be no codecasts presented")
 def step_impl(context: Context):
-    usecase = PresentCodecastsUseCase(gateway=context.gateway)
     user = context.gatekeeper.get_logged_in_user()
-    codecasts = usecase.present_codecasts(user)
+    codecasts = context.present_codecasts_usecase.present_codecasts(user)
     assert 0 == len(codecasts)
 
 
@@ -64,4 +63,9 @@ def step_impl(context: Context, username: str, title: str):
 
 @step('with license for "{username}" able to view "{title}"')
 def step_impl(context: Context, username: str, title: str):
-    raise NotImplementedError(u'STEP: And with license for "U" able to view "A"')
+    user = context.gatekeeper.get_logged_in_user()
+    codecast = context.gateway.find_codecast_by_title(title)
+    license_ = License(user=user, codecast=codecast)
+    context.gateway.save_license(license_)
+    assert context.present_codecasts_usecase.is_licensed_to_view(user, codecast) is True
+

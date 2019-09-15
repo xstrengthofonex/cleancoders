@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
+from cleancoders.entities.entity import Entity
 
-@dataclass(frozen=True)
-class User:
+
+@dataclass
+class User(Entity):
     username: str
-
