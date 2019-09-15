@@ -1,30 +1,46 @@
+from typing import List
+
 from behave import given, step, then
 from behave.runner import Context
+
+from cleancoders.entities.codecast import Codecast
+from cleancoders.entities.user import User
+from cleancoders.usecases.present_codecasts_use_case import PresentCodecastsUseCase
 
 
 @given("no codecasts")
 def step_impl(context: Context):
-    raise NotImplementedError(u'STEP: Given no codecasts')
+    codecasts: List[Codecast] = context.gateway.find_all_codecasts()
+    for codecast in codecasts:
+        context.gateway.delete(codecast)
+    assert 0 == len(context.gateway.find_all_codecasts())
 
 
 @given('user "{username}"')
-def step_impl(context, username: str):
-    raise NotImplementedError(u'STEP: Given user "U"')
+def step_impl(context: Context, username: str):
+    user = User(username=username)
+    context.gateway.save_user(user)
+    assert user == context.gateway.find_user(username)
 
 
 @step('user "{username}" logged in')
-def step_impl(context, username: str):
-    raise NotImplementedError(u'STEP: And user "U" logged in')
+def step_impl(context: Context, username: str):
+    user = context.gateway.find_user(username)
+    if user:
+        context.gatekeeper.set_logged_in_user(user)
 
 
 @then('the following codecasts will be presented for "{username}"')
-def step_impl(context, username: str):
-    raise NotImplementedError(u'STEP: Then the following codecasts will be presented for "U"')
+def step_impl(context: Context, username: str):
+    assert context.gatekeeper.get_logged_in_user() is not None
 
 
 @step("there will be no codecasts presented")
 def step_impl(context: Context):
-    raise NotImplementedError(u'STEP: And there will be no codecasts presented')
+    usecase = PresentCodecastsUseCase(gateway=context.gateway)
+    user = context.gatekeeper.get_logged_in_user()
+    codecasts = usecase.present_codecasts(user)
+    assert 0 == len(codecasts)
 
 
 @step("codecasts will be presented in chronological order")
@@ -34,7 +50,11 @@ def step_impl(context: Context):
 
 @given("codecasts")
 def step_impl(context: Context):
-    raise NotImplementedError(u'STEP: Given codecasts')
+    for row in context.table:
+        codecast = Codecast(
+            title=row.get("title", ""),
+            publication_date=row.get("published", ""))
+        context.gateway.save_codecast(codecast)
 
 
 @step('with license for "{username}" able to download "{title}"')
